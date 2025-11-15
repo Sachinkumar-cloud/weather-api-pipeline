@@ -1,0 +1,41 @@
+name: Weather API 3-Stage Pipeline
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+  Test:
+    needs: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Start API
+        run: |
+          pip install -r requirements.txt
+          python app.py &
+          sleep 5
+      - name: Run Tests
+        run: bash test_api.sh
+
+  Deploy:
+    needs: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Docker Image
+        run: docker build -t weather-api .
+      - name: Save Docker Image
+        run: docker save weather-api > weather-api.tar
+      - name: Upload Docker Image as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: weather-api-image
+          path: weather-api.tar

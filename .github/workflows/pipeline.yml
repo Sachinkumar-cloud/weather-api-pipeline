@@ -30,12 +30,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Build Docker Image
         run: docker build -t weather-api .
+
       - name: Save Docker Image
         run: docker save weather-api > weather-api.tar
-      - name: Upload Docker Image as Artifact
-        uses: actions/upload-artifact@v3
+
+      - name: Upload Docker Image
+        uses: actions/upload-artifact@v4
         with:
-          name: weather-api-image
+          name: weather-api
           path: weather-api.tar
